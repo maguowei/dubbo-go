@@ -210,7 +210,12 @@ func (s *ServiceConfig) IsExport() bool {
 func getRandomPort(protocolConfigs []*ProtocolConfig) *list.List {
 	ports := list.New()
 	for _, proto := range protocolConfigs {
-		if len(proto.Port) > 0 {
+		if port, err := strconv.Atoi(proto.Port); err != nil {
+			logger.Infof(
+				"%s will be assgined to a random port, since the port is an invalid number",
+				proto.Name,
+			)
+		} else if port > 0 {
 			continue
 		}
 
@@ -331,13 +336,13 @@ func (s *ServiceConfig) Export() error {
 	return nil
 }
 
-//setRegistrySubURL set registry sub url is ivkURl
+// setRegistrySubURL set registry sub url is ivkURl
 func setRegistrySubURL(ivkURL *common.URL, regUrl *common.URL) {
 	ivkURL.AddParam(constant.RegistryKey, regUrl.GetParam(constant.RegistryKey, ""))
 	regUrl.SubURL = ivkURL
 }
 
-//loadProtocol filter protocols by ids
+// loadProtocol filter protocols by ids
 func loadProtocol(protocolIds []string, protocols map[string]*ProtocolConfig) []*ProtocolConfig {
 	returnProtocols := make([]*ProtocolConfig, 0, len(protocols))
 	for _, v := range protocolIds {
